@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon src/index.ts",
     "build": "tsc",
-    "preview": "npm run build && node ."
+    "start": "npm run build && node ."
   },
   "author": "GoldenXLence",
   "license": "ISC",
