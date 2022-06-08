@@ -12,6 +12,8 @@
   "author": "GoldenXLence",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.27.2",
+    "csv-parser": "^3.0.0",
     "dotenv": "^16.0.1",
     "express": "^4.18.1"
   },
