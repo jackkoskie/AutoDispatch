@@ -32,17 +32,17 @@ export default async (flightInfo: { arr: String; dep: string; callsign: any }, e
     let text = []
 
     const gate = getGate(flightInfo.arr, flightInfo.dep.toUpperCase().startsWith('K') ? true : false)
-    const arrivalWeather = await axios.get(`https://avwx.rest/api/metar/${flightInfo.arr}?`, {
-        headers: {
-            Authorization: `Bearer ${process.env.AVWX_KEY}`
-        }
-    })
+    // const arrivalWeather = await axios.get(`https://avwx.rest/api/metar/${flightInfo.arr}?`, {
+    //     headers: {
+    //         Authorization: `Bearer ${process.env.AVWX_KEY}`
+    //     }
+    // })
 
     text.push(
         `***AUTOMATED UPLINK***`,
         `GATE ASSIGNMENT FOR`,
         `FLIGHT ${flightInfo.callsign}`,
-        `ARRIVING ${flightInfo.arr} IS ${gate}`,
+        `ARRIVING ${flightInfo.arr} IS ${gate?.gate_number}`,
         `GROUND POWER: YES`,
         `GROUND AIR: YES`,
         `OPS FREQ: UNKN`,
