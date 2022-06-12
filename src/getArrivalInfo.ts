@@ -39,14 +39,15 @@ export default async (flightInfo: { arr: String; dep: string; callsign: any }, e
     })
 
     text.push(
-        `ACARS Begin ${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`,
-        `Flight ${flightInfo.callsign} ${flightInfo.dep} ${flightInfo.arr}`,
-        `Arrival Information`,
-        `ETA ${eta}`,
-        `Weather ${flightInfo.arr}`,
-        `${arrivalWeather.data.raw}`,
-        `Gate ${flightInfo.arr}/${gate}`,
-        `ACARS End`
+        `***AUTOMATED UPLINK***`,
+        `GATE ASSIGNMENT FOR`,
+        `FLIGHT ${flightInfo.callsign}`,
+        `ARRIVING ${flightInfo.arr} IS ${gate}`,
+        `GROUND POWER: YES`,
+        `GROUND AIR: YES`,
+        `OPS FREQ: UNKN`,
+        `MESSAGE: KEEP APU`,
+        `SHUTDOWN WHEN ABLE`
     )
 
     return text
