@@ -47,7 +47,7 @@ app.get('/dispatch/:file', async (req, res) => {
 
     const flight = file.split('.')[0].toUpperCase()
     const requestType = file.split('.')[1].toUpperCase()
-    const filePath = path.join(__dirname, './dispatch/', file)
+    const filePath = path.join(__dirname, './files/', file)
     const flightInfo = routes.find(route => route.callsign === flight)
     let text = []
 
@@ -67,11 +67,6 @@ app.get('/dispatch/:file', async (req, res) => {
                     text.push(line)
                 });
             }
-
-            default: {
-                text.push('Unknown Request Type')
-                break;
-            }
         }
 
     }
@@ -82,7 +77,7 @@ app.get('/dispatch/:file', async (req, res) => {
         text[i] = text[i].toUpperCase()
     }
 
-    fs.writeFileSync(filePath, text.join('\n'), 'utf8')
+    fs.writeFileSync(filePath, text.join('\n'), { encoding: 'utf8', flag: 'w' })
     res
         .status(200)
         .sendFile(filePath)
