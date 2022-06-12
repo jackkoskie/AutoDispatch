@@ -7,6 +7,10 @@ import getArrivalInfo from './getArrivalInfo'
 import dotenv from 'dotenv'
 dotenv.config()
 
+if (!process.env.AVWX_KEY || !process.env.HOPPIE_LOGON || !process.env.CALLSIGN) {
+    throw new Error("Missing environment variables")
+}
+
 import cron from './cron'
 cron()
 
