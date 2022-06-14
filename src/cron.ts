@@ -1,55 +1,77 @@
 import { schedule } from 'node-cron'
 import axios from 'axios'
+import qs from 'qs'
+
 import getArrivalInfo from './getArrivalInfo'
 
+const HOPPIE_URL = 'http://www.hoppie.nl/acars/system/connect.html?'
+
+const hoppieString = (
+  type = 'poll',
+  packet: string | undefined = undefined
+) => {
+  const CALLSIGN = process.env.CALLSIGN
+  const HOPPIE_LOGON = process.env.HOPPIE_LOGON
+
+  if (!CALLSIGN || !HOPPIE_LOGON) {
+    throw new Error('CALLSIGN or HOPPIE_LOGON environment vars not set.')
+  }
+
+  const query = qs.stringify({
+    logon: HOPPIE_LOGON,
+    from: CALLSIGN,
+    to: CALLSIGN,
+    type,
+    packet,
+  })
+
+  return `${HOPPIE_URL}${query}`
+}
+
 export default () => {
-    // Auto Send Arrival Info
-    schedule('* * * * *', async () => {
-        console.log('Looking For Aircraft Approaching TOD')
-        const poll = await axios.get(`http://www.hoppie.nl/acars/system/connect.html?from=${process.env.CALLSIGN}&to=${process.env.CALLSIGN}&type=poll&logon=${process.env.HOPPIE_LOGON}`)
+  // Auto Send Arrival Info
+  // TODO: replace with scheduler that supports async such as Bree
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  schedule('* * * * *', async () => {
+    console.log('Looking For Aircraft Approaching TOD')
 
-        let pollData = poll.data.split('} {')
+    const pendingMessages = ((await axios.get(hoppieString())).data as string)
+      .replace(/^ok {/, '')
+      .replace(/}}$/, '}')
+      .split('} {')
 
+    const data: string[][] = []
+    for (const request of pendingMessages) {
+      if (request.includes('progress') && request.includes('ETA/')) {
+        const formattedData = request
+          .replace('{', '')
+          .replace('}', '')
+          .split(' ')
+          .filter((data) => data.length > 0)
 
+        data.push(formattedData)
+      }
+    }
 
-        pollData[0] = pollData[0].replace('ok {', '')
-        pollData[pollData.length - 1] = pollData[pollData.length - 1].replace('}}', '}')
-        let data = []
+    if (data.length === 0) {
+      return console.log('No Aircraft Approaching TOD')
+    }
 
+    return data.map(async (report) => {
+      const flightInfo = {
+        callsign: report[0],
+        dep: report[2].split('/')[0],
+        arr: report[2].split('/')[1],
+      }
+      const arrivalInfo = getArrivalInfo(flightInfo)
+      arrivalInfo.push(process.env.FOOTER ?? '')
 
-        for (let i = 0; i < pollData.length; i++) {
-            const request = pollData[i];
-            if (request.includes('progress') && request.includes('ETA/')) {
-                let formattedData = request.replace('{', '').replace('}', '').split(' ')
-
-                if (formattedData[formattedData.length - 1] === '') formattedData.pop()
-
-                data.push(formattedData)
-            }
-        }
-        console.log(data.length, data)
-        if (data.length < 1) {
-            return console.log('No Aircraft Approaching TOD')
-        }
-
-        data.forEach(async (report) => {
-            const flightInfo = {
-                callsign: report[0],
-                dep: report[2].split('/')[0],
-                arr: report[2].split('/')[1],
-            }
-            const eta = report[5].split('/')[1]
-
-            let arrivalInfo = await getArrivalInfo(flightInfo, eta)
-
-            arrivalInfo.push(process.env.FOOTER || '')
-
-            for (let i = 0; i < arrivalInfo.length; i++) {
-                arrivalInfo[i] = arrivalInfo[i].toUpperCase()
-            }
-
-            axios.post(`http://www.hoppie.nl/acars/system/connect.html?from=${process.env.CALLSIGN}&to=${flightInfo.callsign}&type=telex&logon=${process.env.HOPPIE_LOGON}&packet=${encodeURI(arrivalInfo.join('\n'))}`)
-
-        });
+      return await axios.post(
+        hoppieString(
+          'telex',
+          encodeURI(arrivalInfo.map((arr) => arr.toUpperCase()).join('\n'))
+        )
+      )
     })
+  })
 }
