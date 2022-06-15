@@ -36,21 +36,21 @@ app.get('/dispatch/', (req, res) => {
   })
 })
 
-app.get('/dispatch/:file', (req, res) => {
-  const file = String(req.params.file).toUpperCase()
+app.get('/dispatch/:flightFile', (req, res) => {
+  const flightFile = String(req.params.flightFile).toUpperCase().split('.')
 
-  if (file.split('.').length != 2) {
+  if (flightFile.length !== 2) {
     return res.status(400).json({
       message: 'Bad Request, file must be a valid file',
     })
   }
 
-  const flight = file.split('.')[0]
-  const requestType = file.split('.')[1]
-  const filePath = path.join(__dirname, './files/', file)
+  const flight = flightFile[0]
+  const requestType = flightFile[1]
+  const filePath = path.join(__dirname, './files/', flightFile.join('.'))
   const flightInfo = routes.find((route) => route.callsign === flight)
-  const text = []
 
+  const text: string[] = []
   if (!flightInfo) {
     text.push(`Flight ${flight} not found`)
   } else {
@@ -61,10 +61,7 @@ app.get('/dispatch/:file', (req, res) => {
       }
 
       case 'ARV': {
-        const arrivalText = getArrivalInfo(flightInfo)
-        arrivalText.forEach((line) => {
-          text.push(line)
-        })
+        text.push(...getArrivalInfo(flightInfo))
       }
     }
   }

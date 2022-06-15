@@ -1,8 +1,8 @@
 import { schedule } from 'node-cron'
 import axios from 'axios'
-import qs from 'qs'
 
 import getArrivalInfo from './getArrivalInfo'
+import { hoppieString } from './hoppie'
 
 const HOPPIE_URL = 'http://www.hoppie.nl/acars/system/connect.html?'
 
@@ -69,7 +69,7 @@ export default () => {
       return await axios.post(
         hoppieString(
           'telex',
-          encodeURI(arrivalInfo.map((arr) => arr.toUpperCase()).join('\n'))
+          arrivalInfo.join('\n').toUpperCase()
         )
       )
     })
