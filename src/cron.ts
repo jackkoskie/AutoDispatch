@@ -4,30 +4,6 @@ import axios from 'axios'
 import getArrivalInfo from './getArrivalInfo'
 import { hoppieString } from './hoppie'
 
-const HOPPIE_URL = 'http://www.hoppie.nl/acars/system/connect.html?'
-
-const hoppieString = (
-  type = 'poll',
-  packet: string | undefined = undefined
-) => {
-  const CALLSIGN = process.env.CALLSIGN
-  const HOPPIE_LOGON = process.env.HOPPIE_LOGON
-
-  if (!CALLSIGN || !HOPPIE_LOGON) {
-    throw new Error('CALLSIGN or HOPPIE_LOGON environment vars not set.')
-  }
-
-  const query = qs.stringify({
-    logon: HOPPIE_LOGON,
-    from: CALLSIGN,
-    to: CALLSIGN,
-    type,
-    packet,
-  })
-
-  return `${HOPPIE_URL}${query}`
-}
-
 export default () => {
   // Auto Send Arrival Info
   // TODO: replace with scheduler that supports async such as Bree
