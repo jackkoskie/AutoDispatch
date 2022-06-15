@@ -27,12 +27,15 @@ export default () => {
                 data.push(formattedData)
             }
         }
-        console.log(data.length, data)
+
         if (data.length < 1) {
             return console.log('No Aircraft Approaching TOD')
         }
 
+        console.info(`Found ${data.length} Aircraft Approaching TOD`)
+
         data.forEach(async (report) => {
+
             const flightInfo = {
                 callsign: report[0],
                 dep: report[2].split('/')[0],
@@ -48,8 +51,9 @@ export default () => {
                 arrivalInfo[i] = arrivalInfo[i].toUpperCase()
             }
 
-            axios.post(`http://www.hoppie.nl/acars/system/connect.html?from=${process.env.CALLSIGN}&to=${flightInfo.callsign}&type=telex&logon=${process.env.HOPPIE_LOGON}&packet=${encodeURI(arrivalInfo.join('\n'))}`)
+            await axios.post(`http://www.hoppie.nl/acars/system/connect.html?from=${process.env.CALLSIGN}&to=${flightInfo.callsign}&type=telex&logon=${process.env.HOPPIE_LOGON}&packet=${encodeURI(arrivalInfo.join('\n'))}`)
 
+            console.info(`Sent Arrival Info to ${flightInfo.callsign}`)
         });
     })
 }

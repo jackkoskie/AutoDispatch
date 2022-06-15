@@ -71,7 +71,13 @@ app.get('/dispatch/:file', async (req, res) => {
 
     }
 
-    text.push(process.env.FOOTER || '')
+
+    if (process.env.FOOTER_LN1) text.push('\n')
+    if (process.env.FOOTER_LN1) text.push(process.env.FOOTER_LN1)
+    if (process.env.FOOTER_LN2) text.push(process.env.FOOTER_LN2)
+    if (process.env.FOOTER_LN3) text.push(process.env.FOOTER_LN3)
+    if (process.env.FOOTER_LN4) text.push(process.env.FOOTER_LN4)
+    if (process.env.FOOTER_LN5) text.push(process.env.FOOTER_LN5)
 
     for (let i = 0; i < text.length; i++) {
         text[i] = text[i].toUpperCase()
