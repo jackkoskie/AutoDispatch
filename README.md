@@ -1,4 +1,4 @@
-# vSpirit-Dispatch
+# Hoppie AutoDispatch
 
 ## Commands
 
