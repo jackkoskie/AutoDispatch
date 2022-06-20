@@ -11,7 +11,7 @@
     "lint": "npx eslint"
   },
   "author": "GoldenXLence",
-  "license": "ISC",
+  "license": "AGPL-3.0",
   "dependencies": {
     "axios": "^0.27.2",
     "csv-parser": "^3.0.0",
